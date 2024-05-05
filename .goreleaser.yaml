@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+# vim: set ts=2 sw=2 tw=0 fo=cnqoj
+
+version: 1
+
+project_name: lb
+
+before:
+  hooks:
+    - go mod tidy
+    - make clean
+
+builds:
+  - id: lb
+    main: './'
+    binary: lb
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+    goarch:
+      - amd64
+    mod_timestamp: "{{ .CommitTimestamp }}"
+    flags:
+      - -trimpath
+    ldflags:
+      - "-s"
+      - "-w"
+      - "-X github.com/faabiosr/lb/cmd.releaseVersion={{ .Version }}"
+      - "-X github.com/faabiosr/lb/cmd.releaseCommit={{ .ShortCommit }}"
+      - "-X github.com/faabiosr/lb/cmd.releaseOS={{ .Os }}/{{ .Arch }}"
+
+archives:
+  - id: lb
+    format: tar.gz
+    builds:
+      - lb
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version}}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}{{ end }}
+
+checksum:
+  name_template: 'checksums.txt'
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
