@@ -8,8 +8,10 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 
+	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
 )
 
@@ -102,4 +104,13 @@ func commands(cmds ...*cli.Command) []*cli.Command {
 	}
 
 	return cmds
+}
+
+func spinner(w io.Writer, text string) *pterm.SpinnerPrinter {
+	return pterm.DefaultSpinner.
+		WithSequence([]string{"⣾ ", "⣽ ", "⣻ ", "⢿ ", "⡿ ", "⣟ ", "⣯ ", "⣷ "}...).
+		WithText(text).
+		WithShowTimer(false).
+		WithRemoveWhenDone(true).
+		WithWriter(w)
 }

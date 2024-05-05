@@ -46,8 +46,14 @@ var verifyCmd = &cli.Command{
 
 		l := internal.LoadLayer(cfg, name)
 
+		spin, err := spinner(cc.App.Writer, "verifying...").Start()
+		if err != nil {
+			return err
+		}
+
 		versions, err := l.LatestVersions(cc.Context, regions)
 		if err != nil {
+			_ = spin.Stop()
 			return err
 		}
 
@@ -56,12 +62,16 @@ var verifyCmd = &cli.Command{
 		})
 
 		if len(bumped) == 1 && bumped[0].Number == 0 {
+			_ = spin.Stop()
 			return errors.New("there are no published versions")
 		}
 
 		if len(bumped) > 1 {
+			_ = spin.Stop()
 			return errors.New(`some regions are not bumped`)
 		}
+
+		_ = spin.Stop()
 
 		fmt.Fprintln(cc.App.Writer, "all regions bumped")
 		return nil

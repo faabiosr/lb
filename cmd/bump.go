@@ -9,10 +9,12 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"strings"
 
 	"golang.org/x/sync/errgroup"
 
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/pterm/pterm"
 	"github.com/urfave/cli/v2"
 
 	"github.com/faabiosr/lb/internal"
@@ -46,21 +48,52 @@ var bumpCmd = &cli.Command{
 			return fmt.Errorf("failed to load aws config: %w", err)
 		}
 
+		pterm.Printf(
+			"Bumping layer across regions: %s\n",
+			pterm.Green(strings.Join(regions, ", ")),
+		)
+
 		l := internal.LoadLayer(cfg, name)
 
-		greatest, err := l.GreatestVersion(cc.Context, regions)
+		spin, err := spinner(cc.App.Writer, "getting latest version...").Start()
 		if err != nil {
 			return err
 		}
 
+		greatest, err := l.GreatestVersion(cc.Context, regions)
+		if err != nil {
+			_ = spin.Stop()
+			return err
+		}
+
+		pterm.Printf(
+			"Greatest version %d in region %s\n",
+			greatest.Number,
+			greatest.Region,
+		)
+
 		if greatest.Number == 0 {
+			_ = spin.Stop()
 			return errors.New("there are no published versions")
+		}
+
+		_ = spin.Stop()
+
+		multi, err := pterm.DefaultMultiPrinter.Start()
+		if err != nil {
+			return err
 		}
 
 		g, ctx := errgroup.WithContext(cc.Context)
 
 		for _, region := range regions {
+			w := multi.NewWriter()
 			g.Go(func() error {
+				spin, err := spinner(w, fmt.Sprintf("%s: starting...", region)).Start()
+				if err != nil {
+					return err
+				}
+
 				latest, err := l.LatestVersion(ctx, region)
 				if err != nil {
 					return err
@@ -72,6 +105,8 @@ var bumpCmd = &cli.Command{
 						return err
 					}
 
+					spin.UpdateText(fmt.Sprintf("%s: downloading version %d", region, current.Number))
+
 					buf := &bytes.Buffer{}
 					if err := l.DownloadVersion(ctx, current, buf); err != nil {
 						return err
@@ -80,19 +115,22 @@ var bumpCmd = &cli.Command{
 					current.Region = region
 					current.Content.File = buf.Bytes()
 
+					spin.UpdateText(fmt.Sprintf("%s: publishing version %d", region, current.Number))
+
 					if err := l.PublishVersion(ctx, current); err != nil {
 						return err
 					}
 				}
 
+				_ = spin.Stop()
+				pterm.Fprint(w, pterm.Sprintf("%s: bump complete", region))
+
 				return nil
 			})
 		}
 
-		if err := g.Wait(); err != nil {
-			return err
-		}
+		_, _ = multi.Stop()
 
-		return nil
+		return g.Wait()
 	},
 }
