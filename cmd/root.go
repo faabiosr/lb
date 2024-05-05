@@ -52,7 +52,6 @@ Commands:{{template "visibleCommandCategoryTemplate" .}}{{end}}
 For more information on a command, use '{{.HelpName}} [command] --help'.
 `
 
-	// nolint:unused
 	commandHelpTemplate = `{{.HelpName}}{{if .Description}} - {{template "descriptionTemplate" .}}{{end}}
 
 Usage: {{if .UsageText}}{{wrap .UsageText 3}}{{else}}{{.HelpName}}{{if .VisibleFlags}} [options]{{end}} {{if .ArgsUsage}}{{.ArgsUsage}}{{else}}{{if .Args}}[arguments...]{{end}}[arguments...]{{end}}{{end}}{{if .VisibleFlags}}
@@ -89,12 +88,12 @@ func newCmd() *cli.App {
 		return nil
 	}
 
+	app.Commands = commands(bumpCmd)
+
 	return app
 }
 
 // commands sets custom help templates and default values.
-//
-// nolint:unused
 func commands(cmds ...*cli.Command) []*cli.Command {
 	for _, cmd := range cmds {
 		cmd.Usage = cmd.Description
