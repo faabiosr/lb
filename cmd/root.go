@@ -88,7 +88,7 @@ func newCmd() *cli.App {
 		return nil
 	}
 
-	app.Commands = commands(bumpCmd)
+	app.Commands = commands(bumpCmd, verifyCmd)
 
 	return app
 }
