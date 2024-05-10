@@ -129,8 +129,11 @@ var bumpCmd = &cli.Command{
 			})
 		}
 
-		_, _ = multi.Stop()
+		if err := g.Wait(); err != nil {
+			return err
+		}
 
-		return g.Wait()
+		_, err = multi.Stop()
+		return err
 	},
 }
