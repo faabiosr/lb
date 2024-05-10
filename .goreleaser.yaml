@@ -49,7 +49,7 @@ archives:
       {{ .ProjectName }}_
       {{- .Version}}_
       {{- if eq .Os "darwin" }}macos_
-      {{- else }}{{- .Os }}_{{ end }}
+      {{- else }}{{ .Os }}_{{ end }}
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else if eq .Arch "arm64" }}aarch64
@@ -70,10 +70,9 @@ nfpms:
     package_name: lb
     file_name_template: >-
       {{ .ProjectName }}_
-      {{- .Version}}_
-      {{- .Os }}_
+      {{- .Version }}_
       {{- if eq .Os "darwin" }}macos_
-      {{- else }}{{- .Os }}_{{ end }}
+      {{- else }}{{ .Os }}_{{ end }}
       {{- if eq .Arch "amd64" }}x86_64
       {{- else if eq .Arch "386" }}i386
       {{- else if eq .Arch "arm64" }}aarch64
