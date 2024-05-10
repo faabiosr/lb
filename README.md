@@ -16,6 +16,9 @@ curl -LO https://github.com/faabiosr/lb/releases/download/v1.0.0/lb_1.0.0_linux_
 sudo apt install -f ./lb_1.0.0_linux_x86_64.deb
 ```
 
+## Usage
+[![asciicast](https://asciinema.org/a/658749.svg)](https://asciinema.org/a/658749)
+
 ## Development
 
 ### Requirements
