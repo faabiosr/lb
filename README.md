@@ -1,4 +1,4 @@
-# LB - (Lambda) Layer Balancer
+# lb
 
 [![Build Status](https://img.shields.io/github/actions/workflow/status/faabiosr/lb/test.yaml?logo=github&style=flat-square)](https://github.com/faabiosr/lb/actions?query=workflow:test)
 [![Codecov branch](https://img.shields.io/codecov/c/github/faabiosr/lb/master.svg?style=flat-square)](https://codecov.io/gh/faabiosr/lb)
@@ -6,20 +6,43 @@
 [![Release](https://img.shields.io/github/v/release/faabiosr/lb?display_name=tag&style=flat-square)](https://github.com/faabiosr/lb/releases)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](https://github.com/faabiosr/lb/blob/master/LICENSE)
 
-Balance your AWS lambda layers across regions.
+## :tada: Overview
+`lb` lets you balance your AWS lambda layers across regions.
 
-## Installation
+## :relaxed: Motivation
+Managing AWS lambda layer across regions is difficult, because each new layer deployment will increment the version automatically, and if you need to introduce a new region, the result will be different versions.
 
-### Linux (apt)
+## :dart: Installation
+
+### Unix-like
+
+#### Manual installation
 ```sh
-curl -LO https://github.com/faabiosr/lb/releases/download/v1.0.0/lb_1.0.0_linux_x86_64.deb
-sudo apt install -f ./lb_1.0.0_linux_x86_64.deb
+# by default will install into ~/.local/bin folder.
+curl -sSL https://raw.githubusercontent.com/faabiosr/lb/main/install.sh | bash 
+
+# install into /usr/local/bin
+curl -sSL https://raw.githubusercontent.com/faabiosr/lb/main/install.sh | sudo INSTALL_PATH=/usr/local/bin bash
 ```
 
-## Usage
-[![asciicast](https://asciinema.org/a/658749.svg)](https://asciinema.org/a/658749)
+### go
+```sh
+go install github.com/faabiosr/lb@latest
+```
 
-## Development
+## :gem: Usage
+
+### Verify the versions deployed across regions
+```sh
+lb verify --regions 'us-east-1,eu-central-1,sa-east-1' my-layer
+```
+
+### Bump all regions with the latest version
+```sh
+lb bump --regions 'us-east-1,eu-central-1,sa-east-1' my-layer
+```
+
+## :toolbox: Development
 
 ### Requirements
 
@@ -35,6 +58,6 @@ Please run the make target below to see the provided targets.
 $ make help
 ```
 
-## License
+## :page_with_curl: License
 
 This project is released under the MIT licence. See [LICENSE](https://github.com/faabiosr/lb/blob/master/LICENSE) for more details.
