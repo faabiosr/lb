@@ -25,6 +25,9 @@ jobs:
       - name: unshallow
         run: git fetch --prune --unshallow
 
+      - name: shellcheck
+        run: shellcheck *.sh
+
       - name: golanci-linter
         uses: golangci/golangci-lint-action@v4
         with:
